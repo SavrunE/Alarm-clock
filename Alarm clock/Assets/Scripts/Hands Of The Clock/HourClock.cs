@@ -4,13 +4,17 @@ using UnityEngine;
 
 public class HourClock : HandOfClock
 {
-    [SerializeField] private TimeTaker timeTaker;
-    private void OnEnable()
+    private const int anglesInOneHour = 360 / 12;
+    private const int maxMinutes = 60;
+    private const int maxHours = 12;
+    protected override void ChangeClock()
     {
-        //timeTaker.OnTimeParsed += 
-    }
-
-    private void ChangeClock(TimeTaker timeTaker)
-    {
+        int hours = timeTaker.Hours;
+        if (hours > maxHours)
+        {
+            hours -= maxHours;
+        }
+        startAngle = hours * anglesInOneHour + timeTaker.Minutes / (maxMinutes/ anglesInOneHour);
+        CorrectionRotate();
     }
 }
