@@ -31,8 +31,8 @@ public class GetFileFromWebsite : MonoBehaviour
 
     private void Start()
     {
-        GetDataTochnoeMoskovskoeVremya();
-        GetDataUnnRu();
+        //GetDataTochnoeMoskovskoeVremya();
+        //GetDataUnnRu();
     }
 
     private void TakeTimeUWR(string urlLink, string[] betweenValues)
