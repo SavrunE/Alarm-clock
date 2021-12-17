@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,11 +6,13 @@ using UnityEngine;
 [RequireComponent(typeof(GetTimeFromWebsite))]
 public class TimeTaker : MonoBehaviour
 {
-    private int hour;
-    private int minute;
-    private int second;
+    public int Hour { get; private set; }
+    public int Minute { get; private set; }
+    public int Second { get; private set; }
     private string correctTime;
     private GetTimeFromWebsite getTimeFromWebsite;
+
+    public Action<TimeTaker> OnTimeParsed;
 
     private void OnEnable()
     {
@@ -40,11 +43,12 @@ public class TimeTaker : MonoBehaviour
             HMS[HMSnumerator++] = int.Parse(substring);
             i += 2;
         }
-        hour = HMS[0];
-        minute = HMS[1];
-        second = HMS[2];
-        Debug.Log(hour);
-        Debug.Log(minute);
-        Debug.Log(second);
+        Hour = HMS[0];
+        Minute = HMS[1];
+        Second = HMS[2];
+        Debug.Log(Hour);
+        Debug.Log(Minute);
+        Debug.Log(Second);
+        OnTimeParsed?.Invoke(this);
     }
 }

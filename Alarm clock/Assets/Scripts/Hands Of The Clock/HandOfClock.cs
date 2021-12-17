@@ -17,4 +17,9 @@ public abstract class HandOfClock : MonoBehaviour
         float delay = SecondsForFullRotate / rotationAngle;
         rotator.DoRotate(this, startAngle, 1, delay);
     }
+
+    public void StopRotate()
+    {
+        rotator.StopRotate(this);
+    }
 }

@@ -40,6 +40,7 @@ public class GetTimeFromWebsite : MonoBehaviour
     {
         if (canFindNextSite)
         {
+            canFindNextSite = false;
             GetDataUnnRu();
         }
         else
