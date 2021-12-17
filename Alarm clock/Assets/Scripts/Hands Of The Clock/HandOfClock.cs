@@ -5,12 +5,14 @@ using UnityEngine;
 public abstract class HandOfClock : MonoBehaviour
 {
     [SerializeField] protected RotatorHandsOfClock rotator;
-    [SerializeField] protected int startAngle;
-    [SerializeField] protected int angle;
-    [SerializeField] protected int delay;
+    [SerializeField] protected int rotationAngle;
+    [SerializeField] protected int delayTime;
+
+    protected int startAngle;
+    protected void ChangeStartAngle(int newAngle) => startAngle = newAngle;
 
     private void Start()
     {
-        rotator.DoRotate(this, startAngle, angle, delay);
+        rotator.DoRotate(this, startAngle, rotationAngle, delayTime);
     }
 }

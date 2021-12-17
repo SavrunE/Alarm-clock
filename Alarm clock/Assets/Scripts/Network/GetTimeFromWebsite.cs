@@ -4,35 +4,60 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Net.Http;
+using System;
 
-public class GetFileFromWebsite : MonoBehaviour
+public class GetTimeFromWebsite : MonoBehaviour
 {
-    public int TimeDCM { get; private set; }
+    private string strTimeDCM;
+    private bool canFindNextSite;
 
-    private string urlLinkTime100 = "https://time100.ru/";//have no seconds
-    private string urlLinkTimeIsRuMoscow = "https://time.is/ru/Moscow";//error Forbidden
-    private string urlLinkMoskovskoeVremja = "https://https://moskovskoe.vremja.org/";// error System.Net.WebConnection+<Connect>d__16.MoveNext ()
     private string urlLinkTochnoeMoskovskoeVremya = "https://tochnoe-moskovskoe-vremya.ru/vremya/moscow";
     private string urlLinkUnnRu = "http://www.unn.ru/time/";
 
-    public void GetDataTime100() => TakeTimeJson(urlLinkTime100,
-        new string[] { "Europe/Moscow", "</span>" });
-    public void GetDataTimeIsRuMoscow() => TakeTimeJson(urlLinkTimeIsRuMoscow,
-        new string[] { "<time", "</time>" });
-    public void GetDataMoskovskoeVremja() => TakeTimeJson(urlLinkMoskovskoeVremja,
-        new string[] { "Timer", "</div>" });
     public void GetDataTochnoeMoskovskoeVremya() => TakeTimeUWR(urlLinkTochnoeMoskovskoeVremya,
-       new string[] { "dclock__number dclock__hours", "<span",
+       new string[] {
+        "dclock__number dclock__hours", "<span",
         "dclock__number dclock__minutes", "<span" ,
         "dclock__number dclock__seconds", "<span" ,
        });
     public void GetDataUnnRu() => TakeTimeUWR(urlLinkUnnRu,
        new string[] { "servertime", "/div" });
 
+    public Action<string> OnTimeChanged;
+
     private void Start()
     {
-        //GetDataTochnoeMoskovskoeVremya();
-        //GetDataUnnRu();
+        FindTime();
+    }
+
+    public void FindTime()
+    {
+        canFindNextSite = true;
+        GetDataTochnoeMoskovskoeVremya();
+    }
+
+    private void TryFindNextWebsite()
+    {
+        if (canFindNextSite)
+        {
+            GetDataUnnRu();
+        }
+        else
+        {
+            Debug.Log("Have no info from websites");
+        }
+    }
+
+    private bool CheckCorrectTime(string strTime)
+    {
+        if (strTime.Length == 6)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     private void TakeTimeUWR(string urlLink, string[] betweenValues)
@@ -40,43 +65,22 @@ public class GetFileFromWebsite : MonoBehaviour
         StartCoroutine(GetData_Coroutine(urlLink, betweenValues));
     }
 
-    private void TakeTimeJson(string urlLink, string[] betweenValues)
-    {
-        GetData_Json(urlLink, betweenValues);
-    }
 
     private IEnumerator GetData_Coroutine(string urlLink, string[] betweenValues)
     {
-        Debug.Log("Show Loader...");
+        Debug.Log("Loading time...");
 
         using (UnityWebRequest request = UnityWebRequest.Get(urlLink))
         {
             yield return request.SendWebRequest();
             if (request.isNetworkError || request.isHttpError)
             {
-                Debug.Log("Error isNetworkError");
+                Debug.Log("Error NetworkError");
             }
             else
             {
                 string cutString = request.downloadHandler.text;
                 FindBetweenValues(betweenValues, cutString);
-            }
-        }
-    }
-
-    private async void GetData_Json(string urlLink, string[] betweenValues)
-    {
-        using (var httpClient = new HttpClient())
-        {
-            var response = await httpClient.GetAsync(urlLink);
-            if (response.IsSuccessStatusCode)
-            {
-                string cutString = await response.Content.ReadAsStringAsync();
-                FindBetweenValues(betweenValues, cutString);
-            }
-            else
-            {
-                Debug.Log(response.ReasonPhrase);
             }
         }
     }
@@ -95,16 +99,14 @@ public class GetFileFromWebsite : MonoBehaviour
                 endString += value;
             }
 
-            bool success = int.TryParse(endString, out int parsedTime);
-
-            if (success)
+            if (CheckCorrectTime(endString))
             {
-                TimeDCM = parsedTime;
-                Debug.Log(TimeDCM);
+                strTimeDCM = endString;
+                OnTimeChanged?.Invoke(strTimeDCM);
             }
             else
             {
-                Debug.Log("Can't parse" + endString);
+                TryFindNextWebsite();
             }
         }
         else
