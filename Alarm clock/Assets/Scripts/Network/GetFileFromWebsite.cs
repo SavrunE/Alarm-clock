@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using UnityEngine.Networking;
 using System.Net.Http;
 
-public class GetFile : MonoBehaviour
+public class GetFileFromWebsite : MonoBehaviour
 {
     public int TimeDCM { get; private set; }
 
